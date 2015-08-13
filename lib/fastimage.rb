@@ -215,7 +215,7 @@ class FastImage
 
   def fetch_using_http_from_parsed_uri
     setup_http
-    @http.request_get(@parsed_uri.request_uri, 'Accept-Encoding' => 'identity') do |res|
+    @http.request_get(@parsed_uri.request_uri, 'Accept-Encoding' => 'gzip,identity') do |res|
       if res.is_a?(Net::HTTPRedirection) && @redirect_count < 4
         @redirect_count += 1
         begin
