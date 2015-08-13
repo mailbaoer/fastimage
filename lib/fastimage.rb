@@ -69,7 +69,7 @@ class FastImage
 
   DefaultTimeout = 2 unless const_defined?(:DefaultTimeout)
 
-  LocalFileChunkSize = 256 unless const_defined?(:LocalFileChunkSize)
+  LocalFileChunkSize = 2560000 unless const_defined?(:LocalFileChunkSize)
 
   # Returns an array containing the width and height of the image.
   # It will return nil if the image could not be fetched, or if the image type was not recognised.
@@ -215,7 +215,7 @@ class FastImage
 
   def fetch_using_http_from_parsed_uri
     setup_http
-    @http.request_get(@parsed_uri.request_uri, 'Accept-Encoding' => 'gzip,identity') do |res|
+    @http.request_get(@parsed_uri.request_uri, 'Accept-Encoding' => 'identity') do |res|
       if res.is_a?(Net::HTTPRedirection) && @redirect_count < 4
         @redirect_count += 1
         begin
