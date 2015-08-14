@@ -52,7 +52,7 @@ require 'pathname'
 require 'zlib'
 
 class FastImage
-  attr_reader :size, :type, :content_length
+  attr_reader :size, :type, :content_length, :content, :base64_content
 
   attr_reader :bytes_read
 
@@ -161,6 +161,11 @@ class FastImage
     new(uri, options.merge(:type_only=>true)).type
   end
 
+  def self.to_data_url(uri, options={})
+    image = new(uri, options)
+    ["data:image/#{image.type};base64", image.base64_content].join(',')
+  end
+
   def initialize(uri, options={})
     @property = options[:type_only] ? :type : :size
     @timeout = options[:timeout] || DefaultTimeout
@@ -242,6 +247,9 @@ class FastImage
           Fiber.yield str
         end
       end
+
+      @content = res.read_body
+      @base64_content = Base64.encode64(@content)
 
       case res['content-encoding']
       when 'deflate', 'gzip', 'x-gzip'
