@@ -298,15 +298,13 @@ class FastImage
     # an offset in this case.
     if readable.is_a?(Pathname)
       read_fiber = Fiber.new do
-        offset = 0
-        while str = readable.read(LocalFileChunkSize, offset)
+        while str = readable.read()
           Fiber.yield str
-          offset += LocalFileChunkSize
         end
       end
     else
       read_fiber = Fiber.new do
-        while str = readable.read(LocalFileChunkSize)
+        while str = readable.read()
           Fiber.yield str
         end
       end
@@ -404,6 +402,7 @@ class FastImage
   end
 
   def parse_type
+    @content = @stream.peek(1000000000000000)
     case @stream.peek(2)
     when "BM"
       :bmp
