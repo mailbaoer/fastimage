@@ -237,8 +237,13 @@ class FastImage
 
       @content_length = res.content_length
 
+      content = []
+      res.read_body do |str|
+        content.push str
+      end
+
       read_fiber = Fiber.new do
-        res.read_body do |str|
+        content.each do |str|
           Fiber.yield str
         end
       end
@@ -259,6 +264,11 @@ class FastImage
       end
 
       parse_packets FiberStream.new(read_fiber)
+
+      @content        = content.join()
+      @base64_content = Base64.strict_encode64(@content)
+      @to_data_url    = ["data:image/#{@type};base64", @base64_content].join(',')
+      @width, @height = @size[0], @size[1]
 
       break  # needed to actively quit out of the fetch
     end
@@ -332,11 +342,6 @@ class FastImage
     rescue FiberError
       raise CannotParseImage
     end
-
-    @content        = stream.instance_variable_get('@str')
-    @base64_content = Base64.strict_encode64(@content)
-    @to_data_url    = ["data:image/#{@type};base64", @base64_content].join(',')
-    @width, @height = @size[0], @size[1]
   end
 
   def parse_size
@@ -402,7 +407,6 @@ class FastImage
   end
 
   def parse_type
-    @content = @stream.peek(1000000000000000)
     case @stream.peek(2)
     when "BM"
       :bmp
