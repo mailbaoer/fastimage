@@ -336,7 +336,7 @@ class FastImage
     end
 
     @content        = stream.instance_variable_get('@str')
-    @base64_content = Base64.encode64(@content)
+    @base64_content = Base64.strict_encode64(@content)
     @to_data_url    = ["data:image/#{@type};base64", @base64_content].join(',')
     @width, @height = @size[0], @size[1]
   end
