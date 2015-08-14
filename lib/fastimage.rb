@@ -69,7 +69,7 @@ class FastImage
 
   DefaultTimeout = 2 unless const_defined?(:DefaultTimeout)
 
-  LocalFileChunkSize = 2560000 unless const_defined?(:LocalFileChunkSize)
+  LocalFileChunkSize = 25600000000000 unless const_defined?(:LocalFileChunkSize)
 
   # Returns an array containing the width and height of the image.
   # It will return nil if the image could not be fetched, or if the image type was not recognised.
