@@ -67,7 +67,7 @@ class FastImage
   class CannotParseImage < FastImageException # :nodoc:
   end
 
-  DefaultTimeout = 2 unless const_defined?(:DefaultTimeout)
+  DefaultTimeout = 120 unless const_defined?(:DefaultTimeout)
 
   LocalFileChunkSize = 25600000000000 unless const_defined?(:LocalFileChunkSize)
 
