@@ -70,7 +70,7 @@ if RUBY_VERSION < "2.2"
 end
 
 class FastImage
-  attr_reader :size, :type, :content_length, :orientation
+  attr_reader :size, :type, :content_length, :content, :base64_content, :to_data_url, :width, :height, , :orientation
 
   attr_reader :bytes_read
 
@@ -85,9 +85,9 @@ class FastImage
   class CannotParseImage < FastImageException # :nodoc:
   end
 
-  DefaultTimeout = 2 unless const_defined?(:DefaultTimeout)
+  DefaultTimeout = 300 unless const_defined?(:DefaultTimeout)
 
-  LocalFileChunkSize = 256 unless const_defined?(:LocalFileChunkSize)
+  LocalFileChunkSize = 25600000000000 unless const_defined?(:LocalFileChunkSize)
 
   # Returns an array containing the width and height of the image.
   # It will return nil if the image could not be fetched, or if the image type was not recognised.
@@ -274,8 +274,13 @@ class FastImage
 
       @content_length = res.content_length
 
+      content = []
+      res.read_body do |str|
+        content.push str
+      end
+
       read_fiber = Fiber.new do
-        res.read_body do |str|
+        content.each do |str|
           Fiber.yield str
         end
       end
@@ -296,6 +301,11 @@ class FastImage
       end
 
       parse_packets FiberStream.new(read_fiber)
+
+      @content        = content.join()
+      @base64_content = Base64.strict_encode64(@content)
+      @to_data_url    = ["data:image/#{@type};base64", @base64_content].join(',')
+      @width, @height = @size[0], @size[1]
 
       break  # needed to actively quit out of the fetch
     end
@@ -340,15 +350,13 @@ class FastImage
     # an offset in this case.
     if readable.is_a?(Pathname)
       read_fiber = Fiber.new do
-        offset = 0
-        while str = readable.read(LocalFileChunkSize, offset)
+        while str = readable.read()
           Fiber.yield str
-          offset += LocalFileChunkSize
         end
       end
     else
       read_fiber = Fiber.new do
-        while str = readable.read(LocalFileChunkSize)
+        while str = readable.read()
           Fiber.yield str
         end
       end
