@@ -70,7 +70,7 @@ if RUBY_VERSION < "2.2"
 end
 
 class FastImage
-  attr_reader :size, :type, :content_length, :content, :base64_content, :to_data_url, :width, :height, , :orientation
+  attr_reader :size, :type, :content_length, :content, :base64_content, :to_data_url, :width, :height, :orientation
 
   attr_reader :bytes_read
 
